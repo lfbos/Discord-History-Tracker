@@ -20,6 +20,7 @@
  *
  *     servers: [
  *       {
+ *         id: <server id> 
  *         name: <server name>,
  *         type: <"SERVER"|"GROUP"|DM">
  *       }, ...
@@ -27,7 +28,7 @@
  *
  *     channels: {
  *       <discord channel id>: {
- *         server: <server index in the meta.servers array>,
+ *         server: <server id>,
  *         name: <channel name>,
  *         position: <order in channel list>, // only present if server type == SERVER
  *         topic: <channel topic>,            // only present if server type == SERVER
@@ -164,13 +165,13 @@ class SAVEFILE{
   }
   
   tryRegisterChannel(serverId, channelId, channelName, extraInfo){
-    var index = this.meta.servers.findIndex(server => server.id === serverId);
-    if (index === -1){
-      return undefined;
+    var server = this.meta.servers.find(server => server.id === serverId);
+    if (server === undefined){
+      return server;
     }
     
     var wasPresent = channelId in this.meta.channels;
-    var channelObj = wasPresent ? this.meta.channels[channelId] : { "server": serverId };
+    var channelObj = wasPresent ? this.meta.channels[channelId] : { "server": server.id };
     
     channelObj.name = channelName;
     
@@ -312,7 +313,8 @@ class SAVEFILE{
     }
     
     for(var channelId in obj.meta.channels){
-      var oldServer = obj.meta.servers[obj.meta.channels[channelId].server];
+      var channel = obj.meta.channels[channelId];
+      var oldServer = obj.meta.servers.find(server => server.id === channel.server);
       var oldChannel = obj.meta.channels[channelId];
       this.tryRegisterChannel(this.findOrRegisterServer(oldServer.name, oldServer.type), channelId, oldChannel.name, oldChannel /* filtered later */);
     }
