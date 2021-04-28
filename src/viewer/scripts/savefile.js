@@ -15,8 +15,12 @@ class SAVEFILE{
     return parsedObj && typeof parsedObj.meta === "object" && typeof parsedObj.data === "object";
   };
 
-  getServer(index){
-    return this.meta.servers[index] || { "name": "&lt;unknown&gt;", "type": "ERROR" };
+  getServer(serverId){
+    var index = this.meta.servers.findIndex(server => server.id === serverId);
+    if (index === -1) {
+      return {"name": "&lt;unknown&gt;", "type": "ERROR"};
+    }
+    return this.meta.servers[index];
   }
 
   getChannels(){
